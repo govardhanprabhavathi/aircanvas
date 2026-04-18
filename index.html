@@ -243,31 +243,57 @@
       align-items: center;
       gap: 8px;
       padding: 10px 16px;
-      background: var(--ui-bg);
-      border: 1px solid var(--ui-border);
+      background: #000000;
+      border: 1px solid #000000;
       border-radius: 25px;
-      color: var(--primary-color);
       font-family: 'Inter', sans-serif;
       font-size: 13px;
-      font-weight: 400;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
-      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease;
     }
 
-    .action-btn:hover {
-      background: rgba(232, 186, 255, 0.15);
-      border-color: var(--primary-glow);
-      transform: translateY(-2px);
-      box-shadow: 0 0 15px var(--primary-glow);
-    }
-
-    .action-btn:active {
-      transform: translateY(0);
+    .action-btn .btn-text, .action-btn .icon {
+      position: relative;
+      z-index: 2;
+      color: #ffffff;
+      transition: color 0.3s ease;
     }
 
     .action-btn .icon {
       font-size: 16px;
+    }
+
+    .action-btn .hover-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 300px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      transform: translate(calc(var(--x, 50%) - 50%), calc(var(--y, 50%) - 50%)) scale(0);
+      transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .action-btn:hover .hover-overlay {
+      transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%)) scale(1);
+    }
+
+    .action-btn:hover .btn-text, .action-btn:hover .icon {
+      color: #000000;
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
     }
 
     /* Color palette - Moved to Bottom, Horizontal */
@@ -983,10 +1009,11 @@
 
       <div class="action-buttons">
         <button class="action-btn" id="clear-all-btn">
-          <span class="icon">🗑️</span>
+          <div class="hover-overlay"></div>
           <span class="btn-text">Clear All</span>
         </button>
         <button class="action-btn" id="invite-btn">
+          <div class="hover-overlay"></div>
           <span class="icon">👥</span>
           <span class="btn-text">Invite Friend</span>
         </button>
