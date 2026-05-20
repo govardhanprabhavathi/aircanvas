@@ -13,10 +13,10 @@
   <link rel="prefetch" href="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands_solution_simd_wasm_bin.js" as="script" crossorigin>
   <style>
     :root {
-      --primary-color: #e8baFF; /* Light purple */
-      --primary-glow: rgba(232, 186, 255, 0.5);
-      --ui-bg: rgba(40, 20, 40, 0.8); /* Purple-ish dark bg */
-      --ui-border: rgba(232, 186, 255, 0.3);
+      --primary-color: #000000; /* Black */
+      --primary-glow: rgba(0, 0, 0, 0.5);
+      --ui-bg: rgba(0, 0, 0, 0.8); /* Dark bg */
+      --ui-border: rgba(0, 0, 0, 0.3);
     }
 
     * {
@@ -130,7 +130,7 @@
     }
 
     .preview-expand-btn:hover {
-      background: rgba(232, 186, 255, 0.2);
+      background: rgba(0, 0, 0, 0.2);
       border-color: var(--primary-glow);
       box-shadow: 0 0 10px var(--primary-glow);
     }
@@ -208,16 +208,16 @@
     }
 
     .subtitle-text {
-      color: rgba(232, 186, 255, 0.7);
+      color: rgba(0, 0, 0, 0.7);
       font-family: 'Inter', sans-serif;
       font-size: 13px;
       font-weight: 300;
       letter-spacing: 0.05em;
-      text-shadow: 0 0 10px rgba(232, 186, 255, 0.3);
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     }
 
     .subtitle-text a {
-      color: rgba(232, 186, 255, 0.9);
+      color: rgba(0, 0, 0, 0.9);
       text-decoration: none;
       transition: color 0.2s ease, text-shadow 0.2s ease;
     }
@@ -427,7 +427,7 @@
     }
 
     .modal {
-      background: linear-gradient(145deg, #2a1a2a 0%, #1d0d1d 100%);
+      background: #000000;
       border: 1px solid var(--ui-border);
       border-radius: 20px;
       padding: 32px;
@@ -461,7 +461,7 @@
       width: 32px;
       height: 32px;
       border: none;
-      background: rgba(232, 186, 255, 0.1);
+      background: rgba(0, 0, 0, 0.1);
       border-radius: 50%;
       color: var(--primary-color);
       font-size: 20px;
@@ -473,12 +473,12 @@
     }
 
     .modal-close:hover {
-      background: rgba(232, 186, 255, 0.2);
+      background: rgba(0, 0, 0, 0.2);
       box-shadow: 0 0 10px var(--primary-glow);
     }
 
     .modal-body {
-      color: rgba(232, 186, 255, 0.8);
+      color: rgba(255, 255, 255, 0.8);
       font-size: 14px;
       line-height: 1.6;
     }
@@ -489,7 +489,7 @@
 
     .room-code-label {
       font-size: 12px;
-      color: rgba(232, 186, 255, 0.6);
+      color: rgba(255, 255, 255, 0.6);
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -503,31 +503,31 @@
     .room-code {
       flex: 1;
       padding: 14px 18px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--ui-border);
       border-radius: 12px;
-      color: var(--primary-color);
+      color: #ffffff;
       font-family: 'Inter', monospace;
       font-size: 20px;
       font-weight: 500;
       letter-spacing: 0.15em;
       text-align: center;
-      box-shadow: inset 0 0 10px rgba(232, 186, 255, 0.1);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     .copy-btn {
       padding: 14px 18px;
-      background: rgba(232, 186, 255, 0.15);
+      background: rgba(255, 255, 255, 0.15);
       border: 1px solid var(--ui-border);
       border-radius: 12px;
-      color: var(--primary-color);
+      color: #ffffff;
       font-size: 16px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
     .copy-btn:hover {
-      background: rgba(232, 186, 255, 0.25);
+      background: rgba(255, 255, 255, 0.25);
       box-shadow: 0 0 10px var(--primary-glow);
     }
 
@@ -535,7 +535,7 @@
       display: flex;
       align-items: center;
       margin: 24px 0;
-      color: rgba(232, 186, 255, 0.4);
+      color: rgba(255, 255, 255, 0.4);
       font-size: 12px;
     }
 
@@ -544,7 +544,7 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: rgba(232, 186, 255, 0.2);
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .divider span {
@@ -554,10 +554,10 @@
     .join-section input {
       width: 100%;
       padding: 14px 18px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--ui-border);
       border-radius: 12px;
-      color: var(--primary-color);
+      color: #ffffff;
       font-family: 'Inter', sans-serif;
       font-size: 16px;
       letter-spacing: 0.1em;
@@ -567,7 +567,7 @@
     }
 
     .join-section input::placeholder {
-      color: rgba(232, 186, 255, 0.3);
+      color: rgba(255, 255, 255, 0.3);
       text-transform: none;
       letter-spacing: normal;
     }
@@ -581,10 +581,10 @@
     .join-btn {
       width: 100%;
       padding: 14px;
-      background: rgba(232, 186, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
       border: 1px solid var(--ui-border);
       border-radius: 12px;
-      color: var(--primary-color);
+      color: #ffffff;
       font-family: 'Inter', sans-serif;
       font-size: 14px;
       font-weight: 500;
@@ -593,19 +593,20 @@
     }
 
     .join-btn:hover {
-      background: rgba(232, 186, 255, 0.3);
+      background: rgba(255, 255, 255, 0.25);
       box-shadow: 0 0 15px var(--primary-glow);
     }
 
     .connection-status {
       margin-top: 16px;
       padding: 12px;
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       font-size: 13px;
       display: flex;
       align-items: center;
       gap: 8px;
+      color: rgba(255, 255, 255, 0.8);
     }
 
     .status-dot {
@@ -701,7 +702,7 @@
       font-family: 'Cormorant Garamond', serif;
       font-size: 72px;
       font-style: italic;
-      color: rgba(232, 186, 255, 0.08);
+      color: rgba(0, 0, 0, 0.08);
       white-space: nowrap;
       pointer-events: none;
       user-select: none;
@@ -1008,6 +1009,10 @@
       </div>
 
       <div class="action-buttons">
+        <button class="action-btn" id="recenter-btn">
+          <div class="hover-overlay"></div>
+          <span class="btn-text">Recenter</span>
+        </button>
         <button class="action-btn" id="clear-all-btn">
           <div class="hover-overlay"></div>
           <span class="btn-text">Clear All</span>
@@ -1053,6 +1058,10 @@
         <div class="gesture-hint">
           <div class="gesture-icon">🖐️</div>
           <span>Three fingers to zoom</span>
+        </div>
+        <div class="gesture-hint">
+          <div class="gesture-icon">✋</div>
+          <span>Four fingers to delete</span>
         </div>
       </div>
 
