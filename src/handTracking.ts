@@ -17,7 +17,7 @@ export class HandTracker {
 
     this.hands = new Hands({
       locateFile: (file) => {
-        return `/mediapipe/${file}`;
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${file}`;
       }
     });
 
@@ -83,11 +83,15 @@ export class HandTracker {
 
       this.videoElement.srcObject = stream;
       
-      // Wait for video to be ready
+      // Wait for video to be ready safely
       await new Promise<void>((resolve) => {
-        this.videoElement.onloadedmetadata = () => {
+        if (this.videoElement.readyState >= 1) {
           resolve();
-        };
+        } else {
+          this.videoElement.onloadedmetadata = () => {
+            resolve();
+          };
+        }
       });
       
       // Start playback without blocking on the promise
