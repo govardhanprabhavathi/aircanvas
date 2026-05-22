@@ -61,7 +61,7 @@ export class GestureDetector {
     };
   }
 
-  private getPalmCenter(landmarks: HandLandmarks): Point2D {
+  public getPalmCenter(landmarks: HandLandmarks): Point2D {
     const wrist = landmarks.landmarks[LANDMARKS.WRIST];
     const indexMcp = landmarks.landmarks[LANDMARKS.INDEX_MCP];
     const pinkyMcp = landmarks.landmarks[LANDMARKS.PINKY_MCP];
@@ -173,15 +173,7 @@ export class GestureDetector {
     );
   }
 
-  private isFist(landmarks: HandLandmarks): boolean {
-    // All fingers closed
-    return (
-      !this.isFingerExtended(landmarks, LANDMARKS.INDEX_TIP, LANDMARKS.INDEX_PIP) &&
-      !this.isFingerExtended(landmarks, LANDMARKS.MIDDLE_TIP, LANDMARKS.MIDDLE_PIP) &&
-      !this.isFingerExtended(landmarks, LANDMARKS.RING_TIP, LANDMARKS.RING_PIP) &&
-      !this.isFingerExtended(landmarks, LANDMARKS.PINKY_TIP, LANDMARKS.PINKY_PIP)
-    );
-  }
+
 
   getIndexTip(landmarks: HandLandmarks): Point2D {
     return landmarks.landmarks[LANDMARKS.INDEX_TIP];
