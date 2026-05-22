@@ -1,14 +1,15 @@
 import { Hands, Results } from '@mediapipe/hands';
+import { Camera } from '@mediapipe/camera_utils';
 import { HandLandmarks, Point2D } from './types';
 
 export type HandResultsCallback = (landmarks: HandLandmarks | null) => void;
 
 export class HandTracker {
   private hands: Hands;
+  private camera: Camera | null = null;
   private videoElement: HTMLVideoElement;
   private callback: HandResultsCallback | null = null;
   private isRunning = false;
-  private animationId: number | null = null;
   private canvasWidth = 640;
   private canvasHeight = 480;
 
@@ -17,7 +18,7 @@ export class HandTracker {
 
     this.hands = new Hands({
       locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${file}`;
+        return `/mediapipe/${file}`;
       }
     });
 
@@ -71,52 +72,25 @@ export class HandTracker {
     if (this.isRunning) return;
 
     try {
-      // Request camera access - balance between speed and detection quality
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          frameRate: { ideal: 30 },  // 30fps is enough for hand tracking
-          facingMode: 'user'
-        }
-      });
-
-      this.videoElement.srcObject = stream;
-      
-      // Ensure video plays first (fixes Safari issues)
-      this.videoElement.play().catch(e => console.warn('Video play warning:', e));
-
-      // Bulletproof readiness check
-      await new Promise<void>((resolve) => {
-        const checkReady = () => {
-          if (this.videoElement.readyState >= 1) {
-            resolve();
-          } else {
-            requestAnimationFrame(checkReady);
-          }
-        };
-        checkReady();
-      });
-
-      // Initialize MediaPipe hands (downloads WASM and models)
+      // Initialize MediaPipe hands first (downloads WASM and models)
       await this.hands.initialize();
 
       this.isRunning = true;
 
-      // Use direct requestAnimationFrame for lower latency
-      const processFrame = async () => {
-        if (!this.isRunning) return;
-
-        if (this.videoElement.readyState >= 2) {
+      this.camera = new Camera(this.videoElement, {
+        onFrame: async () => {
+          if (!this.isRunning) return;
           await this.hands.send({ image: this.videoElement });
-        }
+        },
+        width: 640,
+        height: 480,
+        facingMode: 'user'
+      });
 
-        this.animationId = requestAnimationFrame(processFrame);
-      };
-
-      processFrame();
+      await this.camera.start();
     } catch (error) {
       console.error('Failed to start hand tracking:', error);
+      this.isRunning = false;
       throw error;
     }
   }
@@ -124,9 +98,9 @@ export class HandTracker {
   stop(): void {
     this.isRunning = false;
 
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-      this.animationId = null;
+    if (this.camera) {
+      this.camera.stop();
+      this.camera = null;
     }
 
     const stream = this.videoElement.srcObject as MediaStream;
