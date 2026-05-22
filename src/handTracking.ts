@@ -83,19 +83,20 @@ export class HandTracker {
 
       this.videoElement.srcObject = stream;
       
-      // Wait for video to be ready safely
-      await new Promise<void>((resolve) => {
-        if (this.videoElement.readyState >= 1) {
-          resolve();
-        } else {
-          this.videoElement.onloadedmetadata = () => {
-            resolve();
-          };
-        }
-      });
-      
-      // Start playback without blocking on the promise
+      // Ensure video plays first (fixes Safari issues)
       this.videoElement.play().catch(e => console.warn('Video play warning:', e));
+
+      // Bulletproof readiness check
+      await new Promise<void>((resolve) => {
+        const checkReady = () => {
+          if (this.videoElement.readyState >= 1) {
+            resolve();
+          } else {
+            requestAnimationFrame(checkReady);
+          }
+        };
+        checkReady();
+      });
 
       // Initialize MediaPipe hands (downloads WASM and models)
       await this.hands.initialize();

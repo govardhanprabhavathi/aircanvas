@@ -53,7 +53,12 @@
 
     /* Video element for webcam - now visible in preview */
     #webcam {
-      display: none;
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+      z-index: -1;
     }
 
     /* Camera preview - draggable */
