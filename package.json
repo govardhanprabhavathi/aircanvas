@@ -4,6 +4,7 @@
   "description": "Gesture-based air drawing that inflates into 3D balloon objects",
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/copy-mediapipe.js",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
