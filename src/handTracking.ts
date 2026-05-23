@@ -71,12 +71,12 @@ export class HandTracker {
     if (this.isRunning) return;
 
     try {
-      // Request camera access - balance between speed and detection quality
+      // Initialize MediaPipe hands in parallel to save time
+      const initHandsPromise = this.hands.initialize();
+
+      // Request camera access - relaxed constraints for better device compatibility
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          frameRate: { ideal: 30 },  // 30fps is enough for hand tracking
           facingMode: 'user'
         }
       });
@@ -85,16 +85,20 @@ export class HandTracker {
       
       // Wait for video to be ready
       await new Promise<void>((resolve) => {
-        this.videoElement.onloadedmetadata = () => {
+        if (this.videoElement.readyState >= 1) {
           resolve();
-        };
+        } else {
+          this.videoElement.onloadedmetadata = () => {
+            resolve();
+          };
+        }
       });
       
       // Start playback without blocking on the promise
       this.videoElement.play().catch(e => console.warn('Video play warning:', e));
 
-      // Initialize MediaPipe hands (downloads WASM and models)
-      await this.hands.initialize();
+      // Wait for MediaPipe to finish initializing if it hasn't already
+      await initHandsPromise;
 
       this.isRunning = true;
 
