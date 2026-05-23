@@ -651,8 +651,8 @@ class AirCanvas {
         errorMsg = 'No webcam found. Please connect a camera or use "Mouse Draw" mode.';
         statusLabel = 'No Camera';
       } else {
-        // AI model load failure
-        errorMsg = 'AI tracking models failed to load. Please check your internet connection or reload.';
+        // AI model load failure or unexpected runtime error
+        errorMsg = `AI tracking models failed to load (${error.name || 'Error'}: ${error.message || error.toString()}). Please check your connection or reload.`;
         statusLabel = 'AI Load Failed';
       }
 
