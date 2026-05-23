@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { BalloonObject, Stroke, Point2D } from './types';
 import { Scene3D } from './scene3D';
-import { BalloonInflator } from './balloonInflator';
+import { BalloonInflator } from './BalloonInflator.1';
 import { SCENE, TIMING } from './constants';
 
 export class ObjectManager {
