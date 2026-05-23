@@ -1,15 +1,14 @@
 import { Hands, Results } from '@mediapipe/hands';
-import { Camera } from '@mediapipe/camera_utils';
 import { HandLandmarks, Point2D } from './types';
 
 export type HandResultsCallback = (landmarks: HandLandmarks | null) => void;
 
 export class HandTracker {
   private hands: Hands;
-  private camera: Camera | null = null;
   private videoElement: HTMLVideoElement;
   private callback: HandResultsCallback | null = null;
   private isRunning = false;
+  private animationId: number | null = null;
   private canvasWidth = 640;
   private canvasHeight = 480;
 
@@ -18,7 +17,7 @@ export class HandTracker {
 
     this.hands = new Hands({
       locateFile: (file) => {
-        return `/mediapipe/${file}`;
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
       }
     });
 
@@ -72,25 +71,47 @@ export class HandTracker {
     if (this.isRunning) return;
 
     try {
-      // Initialize MediaPipe hands first (downloads WASM and models)
+      // Request camera access - balance between speed and detection quality
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          frameRate: { ideal: 30 },  // 30fps is enough for hand tracking
+          facingMode: 'user'
+        }
+      });
+
+      this.videoElement.srcObject = stream;
+      
+      // Wait for video to be ready
+      await new Promise<void>((resolve) => {
+        this.videoElement.onloadedmetadata = () => {
+          resolve();
+        };
+      });
+      
+      // Start playback without blocking on the promise
+      this.videoElement.play().catch(e => console.warn('Video play warning:', e));
+
+      // Initialize MediaPipe hands (downloads WASM and models)
       await this.hands.initialize();
 
       this.isRunning = true;
 
-      this.camera = new Camera(this.videoElement, {
-        onFrame: async () => {
-          if (!this.isRunning) return;
-          await this.hands.send({ image: this.videoElement });
-        },
-        width: 640,
-        height: 480,
-        facingMode: 'user'
-      });
+      // Use direct requestAnimationFrame for lower latency
+      const processFrame = async () => {
+        if (!this.isRunning) return;
 
-      await this.camera.start();
+        if (this.videoElement.readyState >= 2) {
+          await this.hands.send({ image: this.videoElement });
+        }
+
+        this.animationId = requestAnimationFrame(processFrame);
+      };
+
+      processFrame();
     } catch (error) {
       console.error('Failed to start hand tracking:', error);
-      this.isRunning = false;
       throw error;
     }
   }
@@ -98,9 +119,9 @@ export class HandTracker {
   stop(): void {
     this.isRunning = false;
 
-    if (this.camera) {
-      this.camera.stop();
-      this.camera = null;
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
     }
 
     const stream = this.videoElement.srcObject as MediaStream;
