@@ -11,24 +11,30 @@ export class HandTracker {
   private animationId: number | null = null;
   private canvasWidth = 640;
   private canvasHeight = 480;
+  private initPromise: Promise<void> | null = null;
 
   constructor(videoElement: HTMLVideoElement) {
     this.videoElement = videoElement;
 
     this.hands = new Hands({
       locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        return `/mediapipe/${file}`;
       }
     });
 
     this.hands.setOptions({
       maxNumHands: 1,
-      modelComplexity: 1,  // Better accuracy model (less jitter)
+      modelComplexity: 0,  // Use Lite model for faster download and initialization
       minDetectionConfidence: 0.6,
       minTrackingConfidence: 0.5
     });
 
     this.hands.onResults((results) => this.onResults(results));
+
+    // Pre-initialize MediaPipe hands in background immediately to save startup time
+    this.initPromise = this.hands.initialize().catch(err => {
+      console.error('Failed to pre-initialize MediaPipe Hands:', err);
+    });
   }
 
   setCanvasSize(width: number, height: number): void {
@@ -71,9 +77,6 @@ export class HandTracker {
     if (this.isRunning) return;
 
     try {
-      // Initialize MediaPipe hands in parallel to save time
-      const initHandsPromise = this.hands.initialize();
-
       // Request camera access - relaxed constraints for better device compatibility
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -98,7 +101,10 @@ export class HandTracker {
       this.videoElement.play().catch(e => console.warn('Video play warning:', e));
 
       // Wait for MediaPipe to finish initializing if it hasn't already
-      await initHandsPromise;
+      if (!this.initPromise) {
+        this.initPromise = this.hands.initialize();
+      }
+      await this.initPromise;
 
       this.isRunning = true;
 
