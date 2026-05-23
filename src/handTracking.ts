@@ -92,12 +92,18 @@ export class HandTracker {
     if (this.isRunning) return;
 
     try {
-      // Request camera access - relaxed constraints for better device compatibility
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user'
-        }
-      });
+      // Request camera access - ideal constraint is user-facing, fallback to raw video if it fails to prevent OverconstrainedError
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'user' }
+          }
+        });
+      } catch (err) {
+        console.warn('getUserMedia with facingMode constraint failed, falling back to raw video...', err);
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      }
 
       this.videoElement.srcObject = stream;
       

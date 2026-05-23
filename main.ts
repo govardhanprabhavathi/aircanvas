@@ -71,7 +71,6 @@ class AirCanvas {
   constructor() {
     try {
       // Get DOM elements
-      const videoElement = document.getElementById('webcam') as HTMLVideoElement;
       const sceneCanvas = document.getElementById('scene-canvas') as HTMLCanvasElement;
       const drawCanvas = document.getElementById('draw-canvas') as HTMLCanvasElement;
       const handCanvas = document.getElementById('hand-canvas') as HTMLCanvasElement;
@@ -94,7 +93,7 @@ class AirCanvas {
       this.mouseDrawBtn = document.getElementById('mouse-draw-btn');
 
       // Initialize components
-      this.handTracker = new HandTracker(videoElement);
+      this.handTracker = new HandTracker(this.previewVideo);
       this.gestureDetector = new GestureDetector();
       this.drawingCanvas = new DrawingCanvas(drawCanvas);
       this.handVisualizer = new HandVisualizer(handCanvas);
@@ -648,10 +647,8 @@ class AirCanvas {
   }
 
   private setupCameraPreview(): void {
-    // Get the video stream from the hand tracker and display in preview
-    const webcam = document.getElementById('webcam') as HTMLVideoElement;
-    if (webcam.srcObject) {
-      this.previewVideo.srcObject = webcam.srcObject;
+    // Webcam stream is already set directly to this.previewVideo, just make sure it is playing
+    if (this.previewVideo.srcObject) {
       this.previewVideo.play().catch(e => console.warn('Video play warning:', e));
     }
 

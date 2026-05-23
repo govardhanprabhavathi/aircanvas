@@ -737,6 +737,26 @@
       text-shadow: none;
     }
 
+    .preloader-privacy {
+      position: absolute;
+      bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 11px;
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      max-width: 90%;
+      line-height: 1.4;
+      pointer-events: none;
+    }
+
+    .privacy-lock {
+      font-size: 12px;
+    }
+
     /* Decorative elements */
     .decorative-text {
       position: absolute;
@@ -928,8 +948,8 @@
       }
 
       .color-swatch {
-        width: 24px;
-        height: 24px;
+        width: 32px; /* Increased from 24px for better mobile touch targeting */
+        height: 32px; /* Increased from 24px for better mobile touch targeting */
       }
 
       .gesture-hints {
@@ -1036,7 +1056,6 @@
 <body>
   <div id="app">
     <div class="content-wrapper">
-      <video id="webcam" playsinline autoplay muted></video>
       <canvas id="scene-canvas"></canvas>
       <canvas id="draw-canvas"></canvas>
       <canvas id="hand-canvas"></canvas>
@@ -1062,15 +1081,17 @@
           <span class="icon">✍️</span>
           <span class="btn-text">Mouse Draw</span>
         </button>
-        <button class="action-btn" id="recenter-btn">
+        <button class="action-btn" id="recenter-btn" title="Recenter camera & canvas view">
           <div class="hover-overlay"></div>
+          <span class="icon">🎯</span>
           <span class="btn-text">Recenter</span>
         </button>
-        <button class="action-btn" id="clear-all-btn">
+        <button class="action-btn" id="clear-all-btn" title="Clear all canvas drawings">
           <div class="hover-overlay"></div>
+          <span class="icon">🗑️</span>
           <span class="btn-text">Clear All</span>
         </button>
-        <button class="action-btn" id="invite-btn">
+        <button class="action-btn" id="invite-btn" title="Invite a friend">
           <div class="hover-overlay"></div>
           <span class="icon">👥</span>
           <span class="btn-text">Invite Friend</span>
@@ -1165,6 +1186,10 @@
       <div class="preloader-subtitle">Designed by Govardhan</div>
       <div class="loading-spinner"></div>
       <div class="loading-text">Initializing hand tracking...</div>
+      <div class="preloader-privacy">
+        <span class="privacy-lock">🔒</span>
+        <span>Private & Safe: All hand tracking is processed locally in your browser. No webcam data is ever collected or sent to any server.</span>
+      </div>
     </div>
   </div>
 
