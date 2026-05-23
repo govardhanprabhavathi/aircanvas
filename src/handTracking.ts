@@ -4,7 +4,7 @@ import { HandLandmarks, Point2D } from './types';
 export type HandResultsCallback = (landmarks: HandLandmarks | null) => void;
 
 export class HandTracker {
-  private hands: Hands;
+  private hands!: Hands;
   private videoElement: HTMLVideoElement;
   private callback: HandResultsCallback | null = null;
   private isRunning = false;
@@ -16,9 +16,24 @@ export class HandTracker {
   constructor(videoElement: HTMLVideoElement) {
     this.videoElement = videoElement;
 
+    // Attempt local initialization in background, fall back to CDN if it fails
+    this.initPromise = this.initHands(false).catch(err => {
+      console.warn('Local MediaPipe files failed to load, falling back to CDN...', err);
+      return this.initHands(true);
+    }).catch(err => {
+      console.error('All MediaPipe initialization attempts failed:', err);
+      throw err;
+    });
+  }
+
+  private initHands(useCDN: boolean): Promise<void> {
+    const basePath = useCDN 
+      ? 'https://cdn.jsdelivr.net/npm/@mediapipe/hands'
+      : '/mediapipe';
+
     this.hands = new Hands({
       locateFile: (file) => {
-        return `/mediapipe/${file}`;
+        return `${basePath}/${file}`;
       }
     });
 
@@ -30,11 +45,7 @@ export class HandTracker {
     });
 
     this.hands.onResults((results) => this.onResults(results));
-
-    // Pre-initialize MediaPipe hands in background immediately to save startup time
-    this.initPromise = this.hands.initialize().catch(err => {
-      console.error('Failed to pre-initialize MediaPipe Hands:', err);
-    });
+    return this.hands.initialize();
   }
 
   setCanvasSize(width: number, height: number): void {

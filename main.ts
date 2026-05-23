@@ -26,7 +26,7 @@ class AirCanvas {
   // DOM elements
   private loadingOverlay: HTMLElement;
   private statusMessage: HTMLElement;
-  private colorSwatches: NodeListOf<HTMLElement>;
+  private colorSwatches = document.querySelectorAll('.color-swatch');
 
   // Modal elements
   private inviteModal: HTMLElement;
@@ -63,6 +63,11 @@ class AirCanvas {
   private previewStartLeft = 0;
   private previewStartTop = 0;
 
+  // Mouse Draw Mode State
+  private mouseDrawActive = false;
+  private isMouseDrawing = false;
+  private mouseDrawBtn: HTMLElement | null = null;
+
   constructor() {
     // Get DOM elements
     const videoElement = document.getElementById('webcam') as HTMLVideoElement;
@@ -85,6 +90,7 @@ class AirCanvas {
     this.joinCodeInput = document.getElementById('join-code-input') as HTMLInputElement;
     this.statusDot = document.getElementById('status-dot')!;
     this.statusText = document.getElementById('status-text')!;
+    this.mouseDrawBtn = document.getElementById('mouse-draw-btn');
 
     // Initialize components
     this.handTracker = new HandTracker(videoElement);
@@ -121,7 +127,7 @@ class AirCanvas {
       swatch.addEventListener('click', () => {
         this.colorSwatches.forEach(s => s.classList.remove('active'));
         swatch.classList.add('active');
-        this.currentColor = swatch.dataset.color || '#FFB3BA';
+        this.currentColor = (swatch as HTMLElement).dataset.color || '#FFB3BA';
       });
     });
 
@@ -164,6 +170,21 @@ class AirCanvas {
         (btn as HTMLElement).style.setProperty('--x', `${x}px`);
         (btn as HTMLElement).style.setProperty('--y', `${y}px`);
       });
+    });
+
+    // Mouse Draw Mode Toggle Button
+    this.mouseDrawBtn?.addEventListener('click', () => {
+      this.mouseDrawActive = !this.mouseDrawActive;
+      if (this.mouseDrawActive) {
+        this.mouseDrawBtn?.classList.add('active');
+        const btnText = this.mouseDrawBtn?.querySelector('.btn-text');
+        if (btnText) btnText.textContent = 'Draw Mode';
+        this.showStatus('Drag mouse/touch on canvas to draw 3D balloons!', 3000);
+      } else {
+        this.mouseDrawBtn?.classList.remove('active');
+        const btnText = this.mouseDrawBtn?.querySelector('.btn-text');
+        if (btnText) btnText.textContent = 'Mouse Draw';
+      }
     });
     // Clear all button
     const clearAllBtn = document.getElementById('clear-all-btn');
@@ -440,6 +461,13 @@ class AirCanvas {
   }
 
   private onMouseDown(e: MouseEvent): void {
+    if (this.mouseDrawActive) {
+      this.isMouseDrawing = true;
+      const pos = { x: e.clientX, y: e.clientY };
+      this.drawingCanvas.startStroke(pos, this.currentColor);
+      return;
+    }
+
     this.isDragging = true;
     this.lastMouseX = e.clientX;
     this.lastMouseY = e.clientY;
@@ -452,6 +480,15 @@ class AirCanvas {
   }
 
   private onMouseMove(e: MouseEvent): void {
+    if (this.mouseDrawActive) {
+      if (this.isMouseDrawing) {
+        const pos = { x: e.clientX, y: e.clientY };
+        this.drawingCanvas.addPoint(pos);
+        this.drawingCanvas.render();
+      }
+      return;
+    }
+
     if (!this.isDragging) return;
 
     const deltaX = e.clientX - this.lastMouseX;
@@ -470,6 +507,12 @@ class AirCanvas {
   }
 
   private onMouseUp(): void {
+    if (this.mouseDrawActive && this.isMouseDrawing) {
+      this.isMouseDrawing = false;
+      this.closeAndInflate();
+      return;
+    }
+
     this.isDragging = false;
     this.selectedObject = null;
   }
@@ -480,6 +523,15 @@ class AirCanvas {
   }
 
   private onTouchStart(e: TouchEvent): void {
+    if (this.mouseDrawActive) {
+      if (e.touches.length === 1) {
+        this.isMouseDrawing = true;
+        const pos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        this.drawingCanvas.startStroke(pos, this.currentColor);
+      }
+      return;
+    }
+
     if (e.touches.length === 1) {
       this.isDragging = true;
       this.lastMouseX = e.touches[0].clientX;
@@ -496,6 +548,15 @@ class AirCanvas {
   }
 
   private onTouchMove(e: TouchEvent): void {
+    if (this.mouseDrawActive) {
+      if (this.isMouseDrawing && e.touches.length === 1) {
+        const pos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        this.drawingCanvas.addPoint(pos);
+        this.drawingCanvas.render();
+      }
+      return;
+    }
+
     if (!this.isDragging || e.touches.length !== 1) return;
 
     const deltaX = e.touches[0].clientX - this.lastMouseX;
@@ -519,22 +580,53 @@ class AirCanvas {
   }
 
   private async init(): Promise<void> {
+    // Start animation loop immediately so the 3D scene renders right away
+    this.animate();
+
+    // Hide the main page preloader overlay immediately for an instant-load feeling
+    setTimeout(() => {
+      this.loadingOverlay.classList.add('hidden');
+    }, 500);
+
+    // Initialize hand tracking in the background asynchronously
+    this.startHandTracking();
+  }
+
+  private async startHandTracking(): Promise<void> {
+    const loader = document.querySelector('.camera-loader') as HTMLElement;
+    const statusText = document.querySelector('.loader-status') as HTMLElement;
+
     try {
+      if (statusText) statusText.textContent = 'Starting camera...';
+
       // Start hand tracking
       await this.handTracker.start((landmarks) => this.onHandResults(landmarks));
 
       // Setup camera preview
       this.setupCameraPreview();
 
-      // Hide loading overlay
-      this.loadingOverlay.classList.add('hidden');
-
-      // Start animation loop
-      this.animate();
+      // Fade out and hide camera loader overlay
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 300);
+      }
+      
+      this.showStatus('Show your hand to begin', 3000);
     } catch (error) {
-      console.error('Failed to initialize:', error);
-      this.loadingOverlay.classList.add('hidden');
-      this.showStatus('Camera access denied. Please allow camera access and refresh.');
+      console.error('Failed to start hand tracking:', error);
+      
+      if (statusText) {
+        statusText.textContent = 'Camera blocked';
+        statusText.style.color = '#ff6b6b';
+      }
+      const spinner = document.querySelector('.mini-spinner') as HTMLElement;
+      if (spinner) {
+        spinner.style.display = 'none';
+      }
+
+      this.showStatus('Camera access denied. Click "Mouse Draw" to draw with your mouse/touch instead.');
     }
   }
 
@@ -543,7 +635,7 @@ class AirCanvas {
     const webcam = document.getElementById('webcam') as HTMLVideoElement;
     if (webcam.srcObject) {
       this.previewVideo.srcObject = webcam.srcObject;
-      this.previewVideo.play();
+      this.previewVideo.play().catch(e => console.warn('Video play warning:', e));
     }
 
     // Set preview canvas size (4:3 ratio to match camera)
