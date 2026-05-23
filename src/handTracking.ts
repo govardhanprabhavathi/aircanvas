@@ -32,7 +32,7 @@ export class HandTracker {
 
   private initHands(useCDN: boolean): Promise<void> {
     const basePath = useCDN 
-      ? 'https://cdn.jsdelivr.net/npm/@mediapipe/hands'
+      ? 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240'
       : '/mediapipe';
 
     this.hands = new Hands({

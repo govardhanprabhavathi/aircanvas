@@ -630,19 +630,38 @@ class AirCanvas {
       }
       
       this.showStatus('Show your hand to begin', 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to start hand tracking:', error);
       
-      if (statusText) {
-        statusText.textContent = 'Camera blocked';
-        statusText.style.color = '#ff6b6b';
-      }
       const spinner = document.querySelector('.mini-spinner') as HTMLElement;
       if (spinner) {
         spinner.style.display = 'none';
       }
 
-      this.showStatus('Camera access denied. Click "Mouse Draw" to draw with your mouse/touch instead.');
+      let errorMsg = 'Camera access denied.';
+      let statusLabel = 'Camera blocked';
+
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        errorMsg = 'Camera permission denied. Click the lock/camera icon in your address bar to Allow it, then reload.';
+        statusLabel = 'Access Denied';
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        errorMsg = 'Webcam is currently in use by another application (e.g. Zoom, OBS, or another tab). Close other apps and reload.';
+        statusLabel = 'Camera in Use';
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        errorMsg = 'No webcam found. Please connect a camera or use "Mouse Draw" mode.';
+        statusLabel = 'No Camera';
+      } else {
+        // AI model load failure
+        errorMsg = 'AI tracking models failed to load. Please check your internet connection or reload.';
+        statusLabel = 'AI Load Failed';
+      }
+
+      if (statusText) {
+        statusText.textContent = statusLabel;
+        statusText.style.color = '#ff6b6b';
+      }
+
+      this.showStatus(errorMsg);
     }
   }
 
