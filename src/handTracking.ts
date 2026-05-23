@@ -16,10 +16,14 @@ export class HandTracker {
   constructor(videoElement: HTMLVideoElement) {
     this.videoElement = videoElement;
 
-    // Attempt local initialization in background, fall back to CDN if it fails
-    this.initPromise = this.initHands(false).catch(err => {
-      console.warn('Local MediaPipe files failed to load, falling back to CDN...', err);
-      return this.initHands(true);
+    // Run initialization in a promise chain to prevent any synchronous exceptions from crashing the constructor
+    this.initPromise = Promise.resolve().then(async () => {
+      try {
+        await this.initHands(false);
+      } catch (err) {
+        console.warn('Local MediaPipe files failed to load, trying CDN...', err);
+        await this.initHands(true);
+      }
     }).catch(err => {
       console.error('All MediaPipe initialization attempts failed:', err);
       throw err;

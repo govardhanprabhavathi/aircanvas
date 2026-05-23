@@ -10,30 +10,30 @@ import { GESTURE, TIMING } from './constants';
 
 class AirCanvas {
   // Core components
-  private handTracker: HandTracker;
-  private gestureDetector: GestureDetector;
-  private drawingCanvas: DrawingCanvas;
-  private handVisualizer: HandVisualizer;
-  private scene3D: Scene3D;
-  private objectManager: ObjectManager;
-  private multiplayer: Multiplayer;
+  private handTracker!: HandTracker;
+  private gestureDetector!: GestureDetector;
+  private drawingCanvas!: DrawingCanvas;
+  private handVisualizer!: HandVisualizer;
+  private scene3D!: Scene3D;
+  private objectManager!: ObjectManager;
+  private multiplayer!: Multiplayer;
 
   // Preview components
-  private previewVideo: HTMLVideoElement;
-  private previewCanvas: HTMLCanvasElement;
-  private previewCtx: CanvasRenderingContext2D;
+  private previewVideo!: HTMLVideoElement;
+  private previewCanvas!: HTMLCanvasElement;
+  private previewCtx!: CanvasRenderingContext2D;
 
   // DOM elements
-  private loadingOverlay: HTMLElement;
-  private statusMessage: HTMLElement;
-  private colorSwatches = document.querySelectorAll('.color-swatch');
+  private loadingOverlay!: HTMLElement;
+  private statusMessage!: HTMLElement;
+  private colorSwatches!: NodeListOf<HTMLElement>;
 
   // Modal elements
-  private inviteModal: HTMLElement;
-  private roomCodeDisplay: HTMLElement;
-  private joinCodeInput: HTMLInputElement;
-  private statusDot: HTMLElement;
-  private statusText: HTMLElement;
+  private inviteModal!: HTMLElement;
+  private roomCodeDisplay!: HTMLElement;
+  private joinCodeInput!: HTMLInputElement;
+  private statusDot!: HTMLElement;
+  private statusText!: HTMLElement;
 
   // State
   private isDrawing = false;
@@ -69,53 +69,70 @@ class AirCanvas {
   private mouseDrawBtn: HTMLElement | null = null;
 
   constructor() {
-    // Get DOM elements
-    const videoElement = document.getElementById('webcam') as HTMLVideoElement;
-    const sceneCanvas = document.getElementById('scene-canvas') as HTMLCanvasElement;
-    const drawCanvas = document.getElementById('draw-canvas') as HTMLCanvasElement;
-    const handCanvas = document.getElementById('hand-canvas') as HTMLCanvasElement;
+    try {
+      // Get DOM elements
+      const videoElement = document.getElementById('webcam') as HTMLVideoElement;
+      const sceneCanvas = document.getElementById('scene-canvas') as HTMLCanvasElement;
+      const drawCanvas = document.getElementById('draw-canvas') as HTMLCanvasElement;
+      const handCanvas = document.getElementById('hand-canvas') as HTMLCanvasElement;
 
-    // Preview elements
-    this.previewVideo = document.getElementById('preview-video') as HTMLVideoElement;
-    this.previewCanvas = document.getElementById('preview-canvas') as HTMLCanvasElement;
-    this.previewCtx = this.previewCanvas.getContext('2d')!;
+      // Preview elements
+      this.previewVideo = document.getElementById('preview-video') as HTMLVideoElement;
+      this.previewCanvas = document.getElementById('preview-canvas') as HTMLCanvasElement;
+      this.previewCtx = this.previewCanvas.getContext('2d')!;
 
-    this.loadingOverlay = document.getElementById('loading-overlay')!;
-    this.statusMessage = document.getElementById('status-message')!;
-    this.colorSwatches = document.querySelectorAll('.color-swatch');
+      this.loadingOverlay = document.getElementById('loading-overlay')!;
+      this.statusMessage = document.getElementById('status-message')!;
+      this.colorSwatches = document.querySelectorAll('.color-swatch');
 
-    // Modal elements
-    this.inviteModal = document.getElementById('invite-modal')!;
-    this.roomCodeDisplay = document.getElementById('room-code')!;
-    this.joinCodeInput = document.getElementById('join-code-input') as HTMLInputElement;
-    this.statusDot = document.getElementById('status-dot')!;
-    this.statusText = document.getElementById('status-text')!;
-    this.mouseDrawBtn = document.getElementById('mouse-draw-btn');
+      // Modal elements
+      this.inviteModal = document.getElementById('invite-modal')!;
+      this.roomCodeDisplay = document.getElementById('room-code')!;
+      this.joinCodeInput = document.getElementById('join-code-input') as HTMLInputElement;
+      this.statusDot = document.getElementById('status-dot')!;
+      this.statusText = document.getElementById('status-text')!;
+      this.mouseDrawBtn = document.getElementById('mouse-draw-btn');
 
-    // Initialize components
-    this.handTracker = new HandTracker(videoElement);
-    this.gestureDetector = new GestureDetector();
-    this.drawingCanvas = new DrawingCanvas(drawCanvas);
-    this.handVisualizer = new HandVisualizer(handCanvas);
-    this.scene3D = new Scene3D(sceneCanvas);
-    this.objectManager = new ObjectManager(
-      this.scene3D,
-      window.innerWidth,
-      window.innerHeight
-    );
-    this.multiplayer = new Multiplayer();
+      // Initialize components
+      this.handTracker = new HandTracker(videoElement);
+      this.gestureDetector = new GestureDetector();
+      this.drawingCanvas = new DrawingCanvas(drawCanvas);
+      this.handVisualizer = new HandVisualizer(handCanvas);
+      this.scene3D = new Scene3D(sceneCanvas);
+      this.objectManager = new ObjectManager(
+        this.scene3D,
+        window.innerWidth,
+        window.innerHeight
+      );
+      this.multiplayer = new Multiplayer();
 
-    // Set initial size
-    this.resize();
+      // Set initial size
+      this.resize();
 
-    // Setup event listeners
-    this.setupEventListeners();
-    this.setupButtonListeners();
-    this.setupPreviewDrag();
-    this.setupMultiplayer();
+      // Setup event listeners
+      this.setupEventListeners();
+      this.setupButtonListeners();
+      this.setupPreviewDrag();
+      this.setupMultiplayer();
 
-    // Start the application
-    this.init();
+      // Start the application
+      this.init();
+    } catch (error) {
+      console.error('Critical initialization error:', error);
+      // Fallback: make sure the loading screen is hidden so the page isn't frozen on spinner
+      const loader = document.getElementById('loading-overlay');
+      if (loader) {
+        loader.classList.add('hidden');
+      }
+      // Wait for DOM parsing to finish if needed, then show status
+      setTimeout(() => {
+        const statusMsg = document.getElementById('status-message');
+        if (statusMsg) {
+          statusMsg.textContent = 'Error starting application. Please check browser console.';
+          statusMsg.classList.add('visible');
+        }
+      }, 100);
+    }
   }
 
   private setupEventListeners(): void {
