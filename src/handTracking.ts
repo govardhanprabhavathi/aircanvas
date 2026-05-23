@@ -1,7 +1,11 @@
-import { Hands, Results } from '@mediapipe/hands';
+import * as mpHands from '@mediapipe/hands';
+import type { Hands, Results } from '@mediapipe/hands';
 import { HandLandmarks, Point2D } from './types';
 
 export type HandResultsCallback = (landmarks: HandLandmarks | null) => void;
+
+// Safe constructor resolution for Vite/CommonJS bundling quirks
+const HandsConstructor = (mpHands as any).Hands || (window as any).Hands || (mpHands as any).default || mpHands;
 
 export class HandTracker {
   private hands!: Hands;
@@ -35,8 +39,8 @@ export class HandTracker {
       ? 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240'
       : '/mediapipe';
 
-    this.hands = new Hands({
-      locateFile: (file) => {
+    this.hands = new HandsConstructor({
+      locateFile: (file: string) => {
         return `${basePath}/${file}`;
       }
     });
