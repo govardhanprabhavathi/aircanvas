@@ -61,9 +61,25 @@ export class BalloonInflator {
     const worldPos = this.screenToWorld(center.x, center.y);
     mesh.position.copy(worldPos);
 
-    // Scale based on stroke size - smaller objects
+    // Scale based on stroke size to match the drawn scale/size in the 3D scene
     const strokeSize = this.getStrokeSize(stroke.points);
-    const scale = Math.max(strokeSize.width, strokeSize.height) / 600;
+
+    // Project boundary points to 3D world space at z = 0
+    const centerWorld = this.screenToWorld(center.x, center.y);
+    const rightWorld = this.screenToWorld(center.x + strokeSize.width / 2, center.y);
+    const topWorld = this.screenToWorld(center.x, center.y - strokeSize.height / 2);
+
+    const targetWidth3D = 2 * Math.abs(rightWorld.x - centerWorld.x);
+    const targetHeight3D = 2 * Math.abs(centerWorld.y - topWorld.y);
+
+    // The geometry was normalized and divided by 50 in createShape()
+    // So its local width and height are strokeSize.width/50 and strokeSize.height/50.
+    // We compute the scale factor required to match the unprojected 3D target size.
+    const scaleX = strokeSize.width > 0 ? (50 * targetWidth3D) / strokeSize.width : 1;
+    const scaleY = strokeSize.height > 0 ? (50 * targetHeight3D) / strokeSize.height : 1;
+
+    // Use the minimum scale to fit within the drawn bounding box and maintain aspect ratio
+    const scale = Math.min(scaleX, scaleY);
     mesh.scale.set(scale, scale, scale);
 
     return mesh;

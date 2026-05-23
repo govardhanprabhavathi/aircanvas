@@ -22,6 +22,7 @@ export class ObjectManager {
 
   async createFromStroke(stroke: Stroke, screenPos?: Point2D): Promise<BalloonObject> {
     const mesh = this.inflator.createBalloonMesh(stroke, screenPos);
+    const calculatedScale = mesh.scale.x;
 
     // Start invisible for inflation animation
     mesh.scale.set(0.001, 0.001, 0.001);
@@ -45,8 +46,8 @@ export class ObjectManager {
       ),
       bobOffset: Math.random() * Math.PI * 2,
       bobSpeed: SCENE.BOB_SPEED_MIN + Math.random() * (SCENE.BOB_SPEED_MAX - SCENE.BOB_SPEED_MIN),
-      scale: 1,
-      targetScale: 1,
+      scale: calculatedScale,
+      targetScale: calculatedScale,
       createdAt: Date.now(),
       isGrabbed: false,
       squishAmount: 0
