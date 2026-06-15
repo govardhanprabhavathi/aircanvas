@@ -1,41 +1,62 @@
-# Air Canvas
+# 🎈 Air Canvas
 
-A premium, browser-based gesture drawing experience where you draw shapes in the air using hand gestures via your webcam. Completed drawings inflate into soft, 3D balloon-like objects that float in a shared, infinite scene.
+Air Canvas is a premium, interactive browser-based 3D drawing and gesture-control experience. By leveraging real-time computer vision and 3D physics rendering, users can draw shapes in the air using their webcam. Once closed, these drawings dynamically inflate into soft, glossy, 3D balloon-like objects that float inside a shared, infinite collaborative environment.
 
-Designed with a sleek, minimalist white aesthetic and powered by robust machine learning for seamless interaction.
+Built with a clean, minimalist aesthetic, Air Canvas supports seamless hand tracking, interactive object physics, and peer-to-peer multiplayer co-drawing.
 
-## Features
+---
 
-- **Infinite Canvas** - Pan and zoom endlessly to build massive scenes of floating objects.
-- **Gesture-Based Drawing** - Point your index finger to draw 2D lines in the air.
-- **3D Balloon Inflation** - Hold an open palm to instantly transform your 2D lines into puffy, floating 3D objects.
-- **Interactive Physics** - Grab, move, rotate, and poke your balloon creations.
-- **Real-Time Hand Tracking** - Powered by Google's MediaPipe for responsive, low-latency hand detection.
-- **Draggable Camera Preview** - Move the camera preview anywhere on the screen.
-- **Minimalist Aesthetics** - A clean, premium white interface featuring beautiful calligraphy typography and sleek black track lines.
+## ✨ Core Features
 
-## How It Works
+*   **🎨 Infinite Canvas & Pan/Zoom**: Endlessly pan and zoom around the canvas to construct massive layouts of floating objects.
+*   **🤝 Real-Time Multiplayer Co-Drawing**: Host or join a shared collaborative session using instant 6-character room codes powered by **PeerJS** for zero-latency peer-to-peer interaction.
+*   **🤖 Local Hand Gesture Recognition**: Powered by **Google MediaPipe Hands**, all hand tracking is executed locally in-browser on the CPU/GPU using WebAssembly (WASM). No camera feed is ever uploaded to a server, ensuring absolute privacy.
+*   **✨ Realistic Balloon Inflation & Physics**:
+    *   2D drawn strokes are simplified and smoothed with Catmull-Rom splines, extruded, and inflated using custom vertex deformation.
+    *   Floating objects exhibit a gentle, realistic bobbing and drifting motion.
+    *   Balloons feature soft-body collision avoidance, pushing away from one another when they float too close or are grabbed.
+*   **💥 Multi-Touch & Gesture Controls**: Interact naturally via pinching to grab, dragging to rotate, poking to squish (triggering bouncy jiggle animations via **GSAP**), and popping to delete.
+*   **🖥️ Draggable & Expandable Camera Preview**: Reposition the camera overlay anywhere on screen by dragging, or double-click to reset it. Expand the preview with the toggle button to inspect tracking details.
+*   **🖱️ Mouse & Touch Fallback**: No webcam? Switch seamlessly to **Mouse Draw Mode** to draw, pan, zoom, and interact with objects using mouse clicks, wheel scroll, or touch gestures.
 
-1. **Draw**: Extend your index finger (keep other fingers curled) to draw.
-2. **Inflate**: Hold an open palm for 0.5 seconds to close and inflate your drawing into 3D.
-3. **Interact**: Pinch to grab and rotate objects, or poke with your finger to squish them.
-4. **Pan**: Hold up two fingers (index + middle) to seamlessly drag the infinite canvas.
-5. **Zoom**: Hold up three fingers (index, middle, ring) and move your hand up to zoom in, and down to zoom out.
-6. **Clear**: Click the "Clear All" button or swipe to remove objects.
+---
 
-## Gesture Controls
+## 🖐️ Gesture Control Schema
 
-| Gesture | Action |
-|---------|--------|
-| **Point** (Index finger) | Draw a line in the air |
-| **Open Palm** (Hold) | Close the current shape and inflate to 3D |
-| **Pinch** (Thumb + Index) | Grab, move, and rotate 3D objects |
-| **Two Fingers** (Index + Middle) | Pan and drag the infinite canvas |
-| **Three Fingers** (Index, Middle, Ring) | Move hand UP to zoom IN, DOWN to zoom OUT |
-| **Swipe** | Remove an individual object |
+Air Canvas maps intuitive hand poses to actions with precise tracking thresholds:
 
-## Installation
+| Hand Gesture | Visual Icon | Action Description |
+| :--- | :---: | :--- |
+| **Point** (Index extended) | ☝️ | Draws a continuous line in the air. Poke existing balloons to squish/jiggle them. |
+| **Open Palm** (All open, hold) | 🖐️ / ✋ | Hold for **0.5s** to close your active drawing and inflate it into a 3D balloon. |
+| **Pinch** (Thumb + Index) | 🤏 | Grab, drag, rotate, and reposition floating balloons in 3D space. |
+| **Two Fingers** (Index + Middle) | ✌️ | Drag your hand to pan across the infinite canvas and move the 3D camera. |
+| **Three Fingers** (Index + Middle + Ring) | 🖐️ | Move your hand **UP** to zoom in, and **DOWN** to zoom out. |
+| **Four Fingers** (All except thumb) | ✋ | Hover your palm center over a balloon to delete (pop) it. |
 
+---
+
+## 🛠️ Tech Stack
+
+Air Canvas is engineered as a modern frontend application utilizing:
+
+*   **TypeScript**: Type-safe, modular code structure.
+*   **Vite**: Extremely fast hot-module replacement (HMR) and production bundling.
+*   **Three.js**: Renders the 3D canvas, perspective camera, lighting, shadows, and materials.
+*   **Google MediaPipe Hands**: Real-time hand tracking and 21-landmark coordinate detection.
+*   **GSAP (GreenSock)**: Smooth, elastic physics animations for balloon inflation, jiggling, settling, and popping.
+*   **PeerJS (WebRTC)**: Peer-to-peer data channels for multiplayer room networking.
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to run the project locally on your machine:
+
+### 1. Prerequisites
+Ensure you have [Node.js](https://nodejs.org/) (v16.0.0 or higher) installed.
+
+### 2. Installation
 ```bash
 # Clone the repository
 git clone https://github.com/Govardhan/AirCanvas.git
@@ -43,49 +64,40 @@ cd AirCanvas
 
 # Install dependencies
 npm install
-
-# Start development server
-npm run dev
 ```
 
-Then open your browser to the local URL shown in the terminal (usually `http://localhost:5173`).
+### 3. Running Development Server
+Start the local development server:
+```bash
+npm run dev
+```
+Once started, open `http://localhost:5173` in your browser.
 
-## Requirements
+### 4. Build and Production Preview
+To compile the TypeScript code and package assets into a highly optimized production bundle:
+```bash
+# Build the production application
+npm run build
 
-- Modern browser with WebGL support (Chrome, Firefox, Edge, Safari)
-- Webcam access
-- Good lighting for accurate hand tracking
-- HTTPS connection (required for camera access when hosted online)
+# Preview the production build locally
+npm run preview
+```
 
-## Tech Stack
+---
 
-- **TypeScript** - Type-safe JavaScript
-- **Vite** - Fast build tool and dev server
-- **Three.js** - 3D rendering and scene management
-- **MediaPipe Hands** - Real-time computer vision hand tracking
+## 💡 Tips for the Best Experience
 
-## Tips for Best Results
+1.  **Webcam & Lighting**: Maintain clean, front-facing lighting so MediaPipe can distinguish your hand skeleton from the background.
+2.  **Distance**: Keep your hand approximately **1.5 to 3 feet** away from your webcam.
+3.  **Clean Gestures**: Try to make gestures clear and deliberate. For example, curl other fingers completely when pointing to draw to avoid overlapping with pan/zoom gestures.
+4.  **HTTPS Requirement**: When deploying to production or staging, standard browsers require an **HTTPS secure connection** to access user webcams.
 
-- Use good lighting so your hand is clearly visible to the webcam.
-- Keep your hand about 1-2 feet from the camera.
-- Point with *just* your index finger extended for drawing to avoid gesture overlap.
-- Draw slowly and steadily for smoother lines.
+---
 
-## Credits
+## 🔒 Privacy First
+All computer vision computations occur locally on your machine. Your webcam feed is never sent over the internet or used for data collection. 
 
-Designed by [Govardhan](#)
+---
 
-### Open Source Libraries
-
-This project is built with these amazing open source libraries:
-
-| Library | Description | License |
-|---------|-------------|---------|
-| [Three.js](https://threejs.org/) | 3D graphics library for WebGL rendering | MIT |
-| [MediaPipe Hands](https://google.github.io/mediapipe/solutions/hands.html) | Google's real-time hand tracking solution | Apache 2.0 |
-| [Vite](https://vitejs.dev/) | Next-generation frontend build tool | MIT |
-| [TypeScript](https://www.typescriptlang.org/) | Typed superset of JavaScript | Apache 2.0 |
-
-## License
-
-MIT
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).
